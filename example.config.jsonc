@@ -1,0 +1,36 @@
+{
+    "credential": {
+        "redis": {
+            "password": "",
+            "username": ""
+        }
+    },
+    "static": {
+        "env": "prod",
+        "frontend": {
+            "url": ""
+        },
+        "app": {
+            "rest": {
+                "port": 8000,
+                "read-timeout": "10s",
+                "idle-timeout": "5s",
+                "limiter": {
+                    "max": 20, // max count of connections
+                    "expiration": "30s" // expiration time of the limit
+                }
+            }
+        },
+        "redis": {
+            "db": 1,
+            "host": "127.0.0.1",
+            "idle-check-frequency": "60s",
+            "idle-timeout": "240s",
+            "pool-fifo": true,
+            "pool-size": 10,
+            "pool-timeout": "4s",
+            "port": 6379,
+            "read-timeout": "3s"
+        }
+    }
+}
