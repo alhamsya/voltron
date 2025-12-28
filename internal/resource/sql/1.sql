@@ -29,14 +29,30 @@ WITH (timescaledb.continuous) AS
 SELECT
   time_bucket('1 day', time) AS day,
   device_id,
-  (max(value) - min(value)) AS usage_kwh
+  GREATEST(last(value, time) - first(value, time), 0) AS usage_kwh
 FROM power_meter
 WHERE metric = 'total_import_kwh'
 GROUP BY day, device_id;
 
 -- execute 3
+-- execute 3
+-- (optional) kalau sebelumnya sudah pernah dibuat, drop dulu biar gak error
+SELECT remove_continuous_aggregate_policy('daily_usage')
+WHERE EXISTS (
+  SELECT 1
+  FROM timescaledb_information.jobs j
+  JOIN timescaledb_information.job_stats js ON js.job_id = j.job_id
+  WHERE j.proc_name = 'policy_refresh_continuous_aggregate'
+);
+
 SELECT add_continuous_aggregate_policy('daily_usage',
   start_offset => INTERVAL '7 days',
   end_offset   => INTERVAL '1 day',
   schedule_interval => INTERVAL '30 minutes'
+);
+
+CALL refresh_continuous_aggregate(
+  'daily_usage',
+  '2025-12-19 00:00:00+00',
+  '2025-12-20 00:00:00+00'
 );

@@ -29,14 +29,14 @@ func RunApp(ctx context.Context) error { //nolint:nolintlint,funlen
 	/* === DATABASE === */
 	dbPrimary := postgresql.Connect(ctx, &postgresql.Config{
 		Username: cfg.Credential.ServiceSpecific["timescale"].Primary.Username,
-		Password: cfg.Credential.ServiceSpecific["timescale"].Primary.Username,
+		Password: cfg.Credential.ServiceSpecific["timescale"].Primary.Password,
 		Host:     cfg.Static.ServiceSpecific["timescale"].Primary.Host,
 		Port:     cfg.Static.ServiceSpecific["timescale"].Primary.Port,
 		Name:     cfg.Static.ServiceSpecific["timescale"].Primary.Name,
 	})
 	dbReplica := postgresql.Connect(ctx, &postgresql.Config{
 		Username: cfg.Credential.ServiceSpecific["timescale"].Primary.Username,
-		Password: cfg.Credential.ServiceSpecific["timescale"].Primary.Username,
+		Password: cfg.Credential.ServiceSpecific["timescale"].Primary.Password,
 		Host:     cfg.Static.ServiceSpecific["timescale"].Primary.Host,
 		Port:     cfg.Static.ServiceSpecific["timescale"].Primary.Port,
 		Name:     cfg.Static.ServiceSpecific["timescale"].Primary.Name,

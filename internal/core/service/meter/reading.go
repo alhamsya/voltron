@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -21,7 +22,7 @@ func (s *Service) Reading(ctx context.Context, param []modelRequest.PowerMater) 
 			DeviceID:  "iot",
 			Metric:    data.Name,
 			Value:     data.Data,
-			EventHash: fmt.Sprintf("iot-%s", data.Name),
+			EventHash: fmt.Sprintf("iot-%s-%d", data.Name, time.Now().Unix()),
 		}
 		reqDB = append(reqDB, pmReading)
 	}

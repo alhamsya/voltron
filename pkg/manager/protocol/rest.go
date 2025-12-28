@@ -36,7 +36,7 @@ func Rest(ctx context.Context, this *RESTService) *RESTService {
 	app.Use(
 		customLogger(ctx, this.Cfg),
 		customCORS(this.Cfg),
-		customLimiter(this.Cfg),
+		//customLimiter(this.Cfg),
 		customRecover(),
 	)
 
