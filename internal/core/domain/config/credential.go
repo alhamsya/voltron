@@ -1,4 +1,4 @@
-package config
+package modelConfig
 
 type Credential struct {
 	ServiceSpecific map[string]DBCredential `mapstructure:"service-specific" validate:"required"`

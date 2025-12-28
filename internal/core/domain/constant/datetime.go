@@ -16,6 +16,8 @@ const (
 	DateTimeWithDayName            = "Mon, 02-Jan-2006 15:04:05 MST"
 	DateWithDayNameFull            = "Monday, 2 January 2006"
 
+	DateWithSlash = "02/01/2006 15:04:05"
+
 	Time              = "15:04:05"
 	TimeWithoutSecond = "15:04"
 	TimeLocalJakarta  = "Asia/Jakarta"

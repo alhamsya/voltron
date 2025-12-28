@@ -23,5 +23,5 @@ func (h *Handler) Register() {
 	h.App.Get("/", h.GetRoot)
 
 	flight := h.App.Group("/v1").Group("/api")
-	flight.Post("/meter", nil)
+	flight.Post("/meter", h.Reading)
 }

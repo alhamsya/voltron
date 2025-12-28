@@ -57,6 +57,10 @@ func Connect(ctx context.Context, cfg *Config) *pgxpool.Pool {
 		panic(errors.Wrap(err, "failed pgxpool NewWithConfig"))
 	}
 
+	if err = db.Ping(ctx); err != nil {
+		panic(errors.Wrap(err, "failed ping database"))
+	}
+
 	return db
 }
 

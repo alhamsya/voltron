@@ -11,46 +11,46 @@ import (
 )
 
 type Application struct {
-	Credential config.Credential `mapstructure:"credential"`
-	Static     config.Static     `mapstructure:"static"`
+	Credential modelConfig.Credential `mapstructure:"credential"`
+	Static     modelConfig.Static     `mapstructure:"static"`
 }
 
 func GetConfigENV() *Application {
 	_ = godotenv.Load()
 
 	cfg := &Application{
-		Credential: config.Credential{
-			ServiceSpecific: map[string]config.DBCredential{
+		Credential: modelConfig.Credential{
+			ServiceSpecific: map[string]modelConfig.DBCredential{
 				"timescale": {
-					Primary: config.DBConnCredential{
+					Primary: modelConfig.DBConnCredential{
 						Username: os.Getenv("PGUSER"),
 						Password: os.Getenv("PGPASSWORD"),
 					},
-					Replica: config.DBConnCredential{
+					Replica: modelConfig.DBConnCredential{
 						Username: os.Getenv("PGUSER"),
 						Password: os.Getenv("PGPASSWORD"),
 					},
 				},
 			},
 		},
-		Static: config.Static{
+		Static: modelConfig.Static{
 			Env: os.Getenv("ENV"),
-			Frontend: &config.Frontend{
+			Frontend: &modelConfig.Frontend{
 				URL: os.Getenv("FE_WEDDING_URL"),
 			},
-			App: &config.App{
-				Rest: config.Rest{
+			App: &modelConfig.App{
+				Rest: modelConfig.Rest{
 					Port: convertStringToInt(os.Getenv("PORT")),
 				},
 			},
-			ServiceSpecific: map[string]config.DBStatic{
+			ServiceSpecific: map[string]modelConfig.DBStatic{
 				"timescale": {
-					Primary: config.DBConnStatic{
+					Primary: modelConfig.DBConnStatic{
 						Host: os.Getenv("PGHOST"),
 						Port: convertStringToInt(os.Getenv("PGPORT")),
 						Name: os.Getenv("PGDATABASE"),
 					},
-					Replica: config.DBConnStatic{
+					Replica: modelConfig.DBConnStatic{
 						Host: os.Getenv("PGHOST"),
 						Port: convertStringToInt(os.Getenv("PGPORT")),
 						Name: os.Getenv("PGDATABASE"),
