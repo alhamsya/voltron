@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -25,4 +26,19 @@ func WithinTimeWindow(t time.Time, from time.Time, to time.Time) bool {
 	}
 	// wrap window (22:00–02:00)
 	return cur >= fm || cur <= tm
+}
+
+func ParseDeviceTime(s string, loc *time.Location) (time.Time, error) {
+	const (
+		layoutA = "02/01/2006 15:04:05" // contoh lama: 19/12/2025 15:27:53
+		layoutB = "02 15:04:05/01/2006" // contoh kamu: 28 10:54:15/12/2025
+	)
+
+	s = strings.TrimSpace(s)
+
+	if t, err := time.ParseInLocation(layoutB, s, loc); err == nil {
+		return t, nil
+	}
+
+	return time.ParseInLocation(layoutA, s, loc)
 }

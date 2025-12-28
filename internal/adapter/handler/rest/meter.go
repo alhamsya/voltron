@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"github.com/alhamsya/voltron/internal/core/domain/constant"
 	modelRequest "github.com/alhamsya/voltron/internal/core/domain/request"
 	"github.com/alhamsya/voltron/pkg/manager/response"
 	"github.com/alhamsya/voltron/pkg/util"
@@ -27,7 +26,7 @@ func (h *Handler) Reading(ctx *fiber.Ctx) error {
 				SetErr(err).SetMessage("please check request data").Send()
 		}
 
-		date, err := time.ParseInLocation(constant.DateWithSlash, data.Date, time.UTC)
+		date, err := util.ParseDeviceTime(data.Date, time.UTC)
 		if err != nil {
 			return response.New(ctx).SetHttpCode(http.StatusBadRequest).
 				SetErr(err).SetMessage("please check request date").Send()
