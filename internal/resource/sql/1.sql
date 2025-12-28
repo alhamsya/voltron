@@ -53,5 +53,5 @@ SELECT add_continuous_aggregate_policy('daily_usage',
 CALL refresh_continuous_aggregate(
   'daily_usage',
   '2025-12-19 00:00:00+00',
-  '2025-12-20 00:00:00+00'
+  '2025-12-31 00:00:00+00'
 );
