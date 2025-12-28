@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"os"
+
+	"github.com/alhamsya/voltron/cmd/consumer"
 	"github.com/alhamsya/voltron/cmd/rest"
 	"github.com/urfave/cli/v2"
-	"os"
 )
 
 func main() {
@@ -19,6 +21,13 @@ func main() {
 						Usage: "run rest API",
 						Action: func(ctx *cli.Context) error {
 							return rest.RunApp(ctx.Context)
+						},
+					},
+					{
+						Name:  "consumer",
+						Usage: "run consumer",
+						Action: func(ctx *cli.Context) error {
+							return consumer.RunApp(ctx.Context)
 						},
 					},
 				},

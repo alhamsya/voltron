@@ -21,4 +21,4 @@ COPY --from=builder /app/server /app/server
 
 ENV TZ=Asia/Jakarta
 
-ENTRYPOINT ["/app/server", "run", "rest"]
+#ENTRYPOINT ["/app/server", "run", "rest"]
