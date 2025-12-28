@@ -10,6 +10,6 @@ type DBConnCredential struct {
 }
 
 type DBCredential struct {
-	Main    DBConnCredential `mapstructure:"main" validate:"required"`
+	Primary DBConnCredential `mapstructure:"primary" validate:"required"`
 	Replica DBConnCredential `mapstructure:"replica" validate:"required"`
 }

@@ -30,16 +30,16 @@ type Limiter struct {
 }
 
 type DBStatic struct {
-	Main    DBConnStatic `mapstructure:"main" validate:"required"`
+	Primary DBConnStatic `mapstructure:"primary" validate:"required"`
 	Replica DBConnStatic `mapstructure:"replica" validate:"required"`
 }
 
 type DBConnStatic struct {
 	Host            string `mapstructure:"host" validate:"required"`
 	Port            int    `mapstructure:"port" validate:"required"`
-	DBname          string `mapstructure:"dbname" validate:"required"`
-	MaxOpenConns    int    `mapstructure:"max-open-conns"`
-	MaxIdleConns    int    `mapstructure:"max-idle-conns"`
-	ConnMaxLifetime int    `mapstructure:"conn-max-lifetime"`
-	ConnMaxIdleTime int    `mapstructure:"conn-max-idle-time"`
+	Name            string `mapstructure:"name" validate:"required"`
+	MaxConns        int    `mapstructure:"max-conns"`
+	MinIdleConns    int    `mapstructure:"min-idle-conns"`
+	MaxConnLifetime int    `mapstructure:"max-conn-lifetime"`
+	MaxConnIdleTime int    `mapstructure:"max-conn-idle-time"`
 }
