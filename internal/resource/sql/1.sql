@@ -35,7 +35,6 @@ WHERE metric = 'total_import_kwh'
 GROUP BY day, device_id;
 
 -- execute 3
--- execute 3
 -- (optional) kalau sebelumnya sudah pernah dibuat, drop dulu biar gak error
 SELECT remove_continuous_aggregate_policy('daily_usage')
 WHERE EXISTS (
