@@ -1,12 +1,12 @@
 package config
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/alhamsya/voltron/internal/core/domain/config"
+	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 )
 
@@ -15,7 +15,12 @@ type Application struct {
 	Static     config.Static     `mapstructure:"static"`
 }
 
-func GetConfig(ctx context.Context) *Application {
+func GetConfigENV() *Application {
+	err := godotenv.Load()
+	if err != nil {
+		panic(errors.Wrap(err, "failed godotenv.Load"))
+	}
+
 	cfg := &Application{
 		Credential: config.Credential{
 			ServiceSpecific: map[string]config.DBCredential{

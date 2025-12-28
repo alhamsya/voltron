@@ -24,7 +24,7 @@ func RunApp(ctx context.Context) error { //nolint:nolintlint,funlen
 	logger := zerolog.New(os.Stderr).With().Stack().Ctx(ctx).Timestamp().Logger()
 
 	/* === GENERAL === */
-	cfg := config.GetConfig(ctx)
+	cfg := config.GetConfigENV()
 
 	/* === DATABASE === */
 	dbPrimary := postgresql.Connect(ctx, &postgresql.Config{
