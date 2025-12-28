@@ -16,10 +16,7 @@ type Application struct {
 }
 
 func GetConfigENV() *Application {
-	err := godotenv.Load()
-	if err != nil {
-		panic(errors.Wrap(err, "failed godotenv.Load"))
-	}
+	_ = godotenv.Load()
 
 	cfg := &Application{
 		Credential: config.Credential{
