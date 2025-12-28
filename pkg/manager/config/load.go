@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
 
@@ -62,7 +63,7 @@ func GetConfig(ctx context.Context) *Application {
 func convertStringToInt(str string) int {
 	num, err := strconv.Atoi(str)
 	if err != nil {
-		panic(errors.New("failed strconv Atoi"))
+		panic(errors.Wrap(err, fmt.Sprintf("failed strconv Atoi: %s", str)))
 	}
 
 	return num
