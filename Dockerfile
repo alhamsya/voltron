@@ -20,10 +20,6 @@ RUN apk add --no-cache ca-certificates tzdata
 
 COPY --from=builder /app/server /app/server
 
-# Jika kamu pakai timezone
 ENV TZ=Asia/Jakarta
 
-# Healthcheck optional (kalau kamu punya endpoint /health)
-# HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:8080/health || exit 1
-
-ENTRYPOINT ["/bin/app run rest"]
+ENTRYPOINT ["/app/server", "run", "rest"]
