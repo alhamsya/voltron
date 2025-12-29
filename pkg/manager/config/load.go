@@ -40,7 +40,7 @@ func GetConfigENV() *Application {
 		Static: modelConfig.Static{
 			Env: os.Getenv("ENV"),
 			Frontend: &modelConfig.Frontend{
-				URL: os.Getenv("FE_WEDDING_URL"),
+				URL: os.Getenv("FE_URL"),
 			},
 			App: &modelConfig.App{
 				Rest: modelConfig.Rest{
