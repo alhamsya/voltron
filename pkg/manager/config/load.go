@@ -32,6 +32,10 @@ func GetConfigENV() *Application {
 					},
 				},
 			},
+			RabbitMQ: modelConfig.RabbitMQCredential{
+				Username: os.Getenv("RABBITMQ_USERNAME"),
+				Password: os.Getenv("RABBITMQ_PASS"),
+			},
 		},
 		Static: modelConfig.Static{
 			Env: os.Getenv("ENV"),
@@ -56,6 +60,10 @@ func GetConfigENV() *Application {
 						Name: os.Getenv("PGDATABASE"),
 					},
 				},
+			},
+			RabbitMQ: modelConfig.RabbitMQStatic{
+				Host: os.Getenv("RABBITMQ_HOST"),
+				Port: convertStringToInt(os.Getenv("RABBITMQ_PORT")),
 			},
 		},
 	}

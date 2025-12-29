@@ -10,6 +10,19 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     networks:
       - apps
+  
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_USER: railway
+      POSTGRES_PASSWORD: alhamsya
+      POSTGRES_DB: railway
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+    networks:
+      - apps
 
 networks:
   apps:
@@ -17,3 +30,4 @@ networks:
 
 volumes:
   redis_data:
+  timescaledb_data:

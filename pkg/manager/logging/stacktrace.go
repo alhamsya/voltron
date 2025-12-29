@@ -1,13 +1,10 @@
 package logging
 
 import (
-	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
 )
 
 func MarshalStack(err error) any {
@@ -44,9 +41,4 @@ func MarshalStack(err error) any {
 	}
 
 	return frames
-}
-
-func FromContext(ctx context.Context) *zerolog.Logger {
-	logging := zerolog.New(os.Stderr).With().Stack().Ctx(ctx).Timestamp().Logger()
-	return &logging
 }

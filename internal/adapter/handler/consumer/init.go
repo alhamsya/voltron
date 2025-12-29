@@ -7,3 +7,9 @@ import (
 type HandlerMeter struct {
 	MeterService port.MeterService
 }
+
+func New(param *HandlerMeter) *HandlerMeter {
+	return &HandlerMeter{
+		MeterService: param.MeterService,
+	}
+}

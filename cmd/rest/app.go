@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"github.com/alhamsya/voltron/internal/adapter/rabbitmq"
 	"log"
 	"os"
 	"os/signal"
@@ -12,16 +13,12 @@ import (
 	"github.com/alhamsya/voltron/internal/core/service/meter"
 	"github.com/alhamsya/voltron/pkg/manager/config"
 	"github.com/alhamsya/voltron/pkg/manager/protocol"
-	"github.com/rs/zerolog"
-
 	_ "go.uber.org/automaxprocs" // Automatically set GOMAXPROCS to match Linux container CPU quota.
 )
 
 func RunApp(ctx context.Context) error { //nolint:nolintlint,funlen
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP, os.Interrupt)
-
-	logger := zerolog.New(os.Stderr).With().Stack().Ctx(ctx).Timestamp().Logger()
 
 	/* === GENERAL === */
 	cfg := config.GetConfigENV()
@@ -41,17 +38,19 @@ func RunApp(ctx context.Context) error { //nolint:nolintlint,funlen
 		Port:     cfg.Static.ServiceSpecific["timescale"].Primary.Port,
 		Name:     cfg.Static.ServiceSpecific["timescale"].Primary.Name,
 	})
-	dbRepo := postgresql.New(dbPrimary, dbReplica)
+	dbRepo := postgresql.New(cfg, dbPrimary, dbReplica)
+
+	rabbitMQRepo := rabbitmq.NewPublisher(cfg)
 
 	/* === DEPENDENCY INJECTION === */
 	meterService := meter.NewService(&meter.Service{
 		Cfg: cfg,
-		Log: logger,
 
 		TimescaleRepo: dbRepo,
+		RabbitMQRepo:  rabbitMQRepo,
 	})
 
-	// Init router
+	/* === HANDLER === */
 	server := protocol.Rest(ctx, &protocol.RESTService{
 		Cfg: cfg,
 		Interactor: &rest.Interactor{

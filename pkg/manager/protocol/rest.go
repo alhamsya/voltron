@@ -54,13 +54,17 @@ func Rest(ctx context.Context, this *RESTService) *RESTService {
 }
 
 func customLogger(ctx context.Context, cfg *config.Application) fiber.Handler {
+	ctx = logging.ContextWithMetadata(ctx, nil)
 	zerolog.TimestampFieldName = "timestamp"
 	zerolog.TimeFieldFormat = time.RFC3339
 	zerolog.ErrorStackMarshaler = logging.MarshalStack
+
+	md := logging.MetadataFromContext(ctx)
 	logger := zerolog.New(os.Stderr).With().
 		Stack().
 		Timestamp().
 		Ctx(ctx).
+		Interface("log_info", md.ToMap()).
 		Logger()
 
 	loggerConfig := fiberzerolog.New(fiberzerolog.Config{

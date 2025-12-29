@@ -3,6 +3,10 @@
         "redis": {
             "password": "",
             "username": ""
+        },
+        "rabbitmq": {
+            "password": "",
+            "username": ""
         }
     },
     "static": {
@@ -31,6 +35,10 @@
             "pool-timeout": "4s",
             "port": 6379,
             "read-timeout": "3s"
+        },
+        "rabbitmq": {
+            "host": "rabbitmq.railway.internal",
+            "port": 5672
         }
     }
 }

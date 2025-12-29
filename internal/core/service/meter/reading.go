@@ -2,6 +2,7 @@ package meter
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -27,9 +28,19 @@ func (s *Service) Reading(ctx context.Context, param []modelRequest.PowerMater) 
 		reqDB = append(reqDB, pmReading)
 	}
 
-	err := s.TimescaleRepo.BulkPowerMeter(ctx, reqDB)
+	//err := s.TimescaleRepo.BulkPowerMeter(ctx, reqDB)
+	//if err != nil {
+	//	return modelResponse.Common{HttpCode: http.StatusInternalServerError}, errors.Wrap(err, "failed repo BulkPowerMeter")
+	//}
+
+	msgByte, err := json.Marshal(reqDB)
 	if err != nil {
-		return modelResponse.Common{HttpCode: http.StatusInternalServerError}, errors.Wrap(err, "failed repo BulkPowerMeter")
+		return modelResponse.Common{HttpCode: http.StatusInternalServerError}, errors.Wrap(err, "failed json marshal")
+	}
+
+	err = s.RabbitMQRepo.PushPowerMeter(ctx, msgByte)
+	if err != nil {
+		return modelResponse.Common{HttpCode: http.StatusInternalServerError}, errors.Wrap(err, "failed publish to RabbitMQ")
 	}
 
 	return modelResponse.Common{

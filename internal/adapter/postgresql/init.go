@@ -3,6 +3,7 @@ package postgresql
 import (
 	"context"
 	"fmt"
+	"github.com/alhamsya/voltron/pkg/manager/config"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
@@ -23,15 +24,18 @@ type Config struct {
 }
 
 type PostgreSQL struct {
+	Cfg *config.Application
+
 	Primary *pgxpool.Pool
 	Replica *pgxpool.Pool
 }
 
-func New(primary, replica *pgxpool.Pool) *PostgreSQL {
+func New(cfg *config.Application, primary, replica *pgxpool.Pool) *PostgreSQL {
 	if primary == nil || replica == nil {
 		panic(errors.New("primary or replica param is nil"))
 	}
 	return &PostgreSQL{
+		Cfg:     cfg,
 		Primary: primary,
 		Replica: replica,
 	}

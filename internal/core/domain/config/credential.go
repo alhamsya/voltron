@@ -2,6 +2,7 @@ package modelConfig
 
 type Credential struct {
 	ServiceSpecific map[string]DBCredential `mapstructure:"service-specific" validate:"required"`
+	RabbitMQ        RabbitMQCredential      `mapstructure:"rabbit-mq" validate:"required"`
 }
 
 type DBConnCredential struct {
@@ -12,4 +13,9 @@ type DBConnCredential struct {
 type DBCredential struct {
 	Primary DBConnCredential `mapstructure:"primary" validate:"required"`
 	Replica DBConnCredential `mapstructure:"replica" validate:"required"`
+}
+
+type RabbitMQCredential struct {
+	Username string `mapstructure:"username" validate:"required"`
+	Password string `mapstructure:"password" validate:"required"`
 }
