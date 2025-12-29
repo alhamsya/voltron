@@ -83,7 +83,7 @@ by default host mock: `localhost:3000`
 
 ## ⚡️ API Documentation
 ### Search Flights
-**Endpoint**: `POST /v1/api/meter`
+**Endpoint**: `POST /v1/api/power/meter`
 
 **Request Body**:
 ```json

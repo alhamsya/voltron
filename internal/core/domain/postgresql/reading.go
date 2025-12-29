@@ -9,3 +9,8 @@ type PowerMeter struct {
 	Value     float64   `json:"value"`
 	EventHash string    `json:"event_hash"`
 }
+
+type TimeSeries struct {
+	Time  time.Time `json:"time"`
+	Value float64   `json:"value"`
+}

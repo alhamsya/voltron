@@ -52,3 +52,15 @@ func (s *Service) LogPowerMeter(ctx context.Context, param []modelRequest.PowerM
 
 	return nil
 }
+
+func (s *Service) TimeSeries(ctx context.Context, param *modelRequest.TimeSeries) (modelResponse.Common, error) {
+	respData, err := s.TimescaleRepo.GetTimeSeries(ctx, param)
+	if err != nil {
+		return modelResponse.Common{}, errors.Wrap(err, "failed repo GetTimeSeries")
+	}
+
+	return modelResponse.Common{
+		HttpCode: http.StatusOK,
+		Data:     respData,
+	}, nil
+}

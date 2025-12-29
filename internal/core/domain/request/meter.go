@@ -17,3 +17,10 @@ type PowerMater struct {
 	Data float64
 	Name string
 }
+
+type TimeSeries struct {
+	Metric   string
+	From     string
+	To       string
+	DeviceID string
+}

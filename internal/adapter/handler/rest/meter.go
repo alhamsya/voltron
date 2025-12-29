@@ -48,3 +48,36 @@ func (h *Handler) Reading(ctx *fiber.Ctx) error {
 	return response.New(ctx).SetHttpCode(resp.HttpCode).
 		SetData(resp).SetMessage("success meter reading").Send()
 }
+
+func (h *Handler) Latest(ctx *fiber.Ctx) error {
+	return response.New(ctx).SetHttpCode(http.StatusOK).
+		SetData(nil).SetMessage("success power latest").Send()
+}
+
+func (h *Handler) TimeSeries(ctx *fiber.Ctx) error {
+	queryParams := ctx.Queries()
+
+	metric := queryParams["metric"]
+	from := queryParams["from"]
+	to := queryParams["to"]
+	deviceID := queryParams["device_id"]
+
+	resp, err := h.Interactor.MeterService.TimeSeries(ctx.Context(), &modelRequest.TimeSeries{
+		Metric:   metric,
+		From:     from,
+		To:       to,
+		DeviceID: deviceID,
+	})
+	if err != nil {
+		return response.New(ctx).SetHttpCode(resp.HttpCode).
+			SetErr(err).SetMessage("failed power time series").Send()
+	}
+
+	return response.New(ctx).SetHttpCode(resp.HttpCode).
+		SetData(resp).SetMessage("success power time series").Send()
+}
+
+func (h *Handler) DailyUsage(ctx *fiber.Ctx) error {
+	return response.New(ctx).SetHttpCode(http.StatusOK).
+		SetData(nil).SetMessage("success power latest").Send()
+}

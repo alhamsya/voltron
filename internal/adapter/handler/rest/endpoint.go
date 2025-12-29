@@ -22,6 +22,11 @@ func (h *Handler) GetRoot(ctx *fiber.Ctx) error {
 func (h *Handler) Register() {
 	h.App.Get("/", h.GetRoot)
 
-	flight := h.App.Group("/v1").Group("/api")
-	flight.Post("/meter", h.Reading)
+	api := h.App.Group("/v1").Group("/api")
+	powerMeter := api.Group("power")
+
+	powerMeter.Post("/meter", h.Reading)
+	powerMeter.Get("/latest", h.Latest)
+	powerMeter.Get("/time-series", h.TimeSeries)
+	powerMeter.Get("/daily-usage", h.DailyUsage)
 }
