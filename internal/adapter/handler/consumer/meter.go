@@ -16,7 +16,7 @@ func (h *HandlerMeter) Consume(ctx context.Context, msg amqp.Delivery) error {
 		return errors.Wrap(err, "failed json unmarshal")
 	}
 
-	_, err := h.MeterService.Reading(ctx, powerMeter)
+	err := h.MeterService.LogPowerMeter(ctx, powerMeter)
 	if err != nil {
 		return errors.Wrap(err, "failed service reading")
 	}
