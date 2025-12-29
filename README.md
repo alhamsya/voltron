@@ -7,6 +7,12 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/alhamsya/voltron)](https://goreportcard.com/report/github.com/alhamsya/voltron)
 [![License](https://img.shields.io/github/license/alhamsya/voltron?color=blue)](https://raw.githubusercontent.com/alhamsya/voltron/master/LICENSE)
 
+## ⚡️ Dashboard
+- https://power-meter-dashboard.up.railway.app/
+
+## ⚡️ Meter Value Simulator
+- https://v0-meter-value-simulator.vercel.app/
+
 ## 👀 Architecture
 - architecture repository: Hexagonal Architecture
 - web framework: fiber (https://gofiber.io/)
@@ -82,8 +88,15 @@ pkg/
 by default host mock: `localhost:3000`
 
 ## ⚡️ API Documentation
-### Search Flights
-**Endpoint**: `POST /v1/api/power/meter`
+### Dashboard Endpoint
+**Endpoint**:
+- `GET /v1/api/power/latest`
+- `GET /v1/api/power/time-series`
+- `GET /v1/api/power/daily-usage`
+
+### Meter Value Simulator
+**Endpoint**: 
+- `POST /v1/api/power/meter`
 
 **Request Body**:
 ```json
