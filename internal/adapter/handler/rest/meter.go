@@ -46,12 +46,12 @@ func (h *Handler) Reading(ctx *fiber.Ctx) error {
 	}
 
 	return response.New(ctx).SetHttpCode(resp.HttpCode).
-		SetData(resp).SetMessage("success meter reading").Send()
+		SetData(resp.Data).SetMessage("success meter reading").Send()
 }
 
 func (h *Handler) Latest(ctx *fiber.Ctx) error {
 	return response.New(ctx).SetHttpCode(http.StatusOK).
-		SetData(nil).SetMessage("success power latest").Send()
+		SetData([]map[string]any{}).SetMessage("success power latest").Send()
 }
 
 func (h *Handler) TimeSeries(ctx *fiber.Ctx) error {
@@ -70,14 +70,14 @@ func (h *Handler) TimeSeries(ctx *fiber.Ctx) error {
 	})
 	if err != nil {
 		return response.New(ctx).SetHttpCode(resp.HttpCode).
-			SetErr(err).SetMessage("failed power time series").Send()
+			SetErr(err).SetMessage("failed meter reading").Send()
 	}
 
 	return response.New(ctx).SetHttpCode(resp.HttpCode).
-		SetData(resp).SetMessage("success power time series").Send()
+		SetData(resp.Data).SetMessage("success power time series").Send()
 }
 
 func (h *Handler) DailyUsage(ctx *fiber.Ctx) error {
 	return response.New(ctx).SetHttpCode(http.StatusOK).
-		SetData(nil).SetMessage("success power latest").Send()
+		SetData([]map[string]any{}).SetMessage("success power latest").Send()
 }
