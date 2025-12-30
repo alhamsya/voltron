@@ -3,6 +3,7 @@ package postgresql
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
@@ -59,7 +60,7 @@ func (db *PostgreSQL) BulkPowerMeter(ctx context.Context, param []modelPostgresq
 	})
 }
 
-func (db *PostgreSQL) GetTimeSeries(ctx context.Context, param *modelRequest.TimeSeries) ([]modelPostgresql.PowerMeter, error) {
+func (db *PostgreSQL) GetMeterTimeSeries(ctx context.Context, param *modelRequest.TimeSeries) ([]modelPostgresql.PowerMeter, error) {
 	query := `
         SELECT time, value
 		FROM power_meter
@@ -97,7 +98,7 @@ func (db *PostgreSQL) GetTimeSeries(ctx context.Context, param *modelRequest.Tim
 	return powerMeters, nil
 }
 
-func (db *PostgreSQL) GetLatestMeter(ctx context.Context, deviceID string) ([]modelPostgresql.Latest, error) {
+func (db *PostgreSQL) GetMeterLatestMeter(ctx context.Context, deviceID string) ([]modelPostgresql.Latest, error) {
 	const query = `
 			SELECT DISTINCT ON (metric)
 			  metric,
@@ -110,7 +111,7 @@ func (db *PostgreSQL) GetLatestMeter(ctx context.Context, deviceID string) ([]mo
 
 	rows, err := db.Replica.Query(ctx, query, deviceID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed Query")
 	}
 	defer rows.Close()
 
@@ -124,4 +125,38 @@ func (db *PostgreSQL) GetLatestMeter(ctx context.Context, deviceID string) ([]mo
 	}
 
 	return resp, nil
+}
+
+func (db *PostgreSQL) GetMeterDailyUsage(ctx context.Context, deviceID string, from, to time.Time) ([]modelPostgresql.DailyUsage, error) {
+	const query = `
+			SELECT
+			  day,
+			  usage_kwh
+			FROM daily_usage
+			WHERE device_id = $1
+			  AND day >= $2::date
+			  AND day <  $3::date
+			ORDER BY day ASC;
+		`
+
+	rows, err := db.Replica.Query(ctx, query, deviceID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed Query")
+	}
+	defer rows.Close()
+
+	var out []modelPostgresql.DailyUsage
+	for rows.Next() {
+		var day time.Time
+		var usage float64
+		if err = rows.Scan(&day, &usage); err != nil {
+			return nil, errors.Wrap(err, "failed rows scan")
+		}
+		out = append(out, modelPostgresql.DailyUsage{
+			Day:      day.Format("2006-01-02"),
+			UsageKwh: usage,
+		})
+	}
+
+	return out, nil
 }

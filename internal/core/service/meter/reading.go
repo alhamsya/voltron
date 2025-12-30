@@ -54,7 +54,7 @@ func (s *Service) LogPowerMeter(ctx context.Context, param []modelRequest.PowerM
 }
 
 func (s *Service) TimeSeries(ctx context.Context, param *modelRequest.TimeSeries) (modelResponse.Common, error) {
-	respData, err := s.TimescaleRepo.GetTimeSeries(ctx, param)
+	respData, err := s.TimescaleRepo.GetMeterTimeSeries(ctx, param)
 	if err != nil {
 		return modelResponse.Common{}, errors.Wrap(err, "failed repo GetTimeSeries")
 	}
@@ -66,9 +66,21 @@ func (s *Service) TimeSeries(ctx context.Context, param *modelRequest.TimeSeries
 }
 
 func (s *Service) Latest(ctx context.Context, deviceID string) (modelResponse.Common, error) {
-	respData, err := s.TimescaleRepo.GetLatestMeter(ctx, deviceID)
+	respData, err := s.TimescaleRepo.GetMeterLatestMeter(ctx, deviceID)
 	if err != nil {
 		return modelResponse.Common{}, errors.Wrap(err, "failed repo GetLatestMeter")
+	}
+
+	return modelResponse.Common{
+		HttpCode: http.StatusOK,
+		Data:     respData,
+	}, nil
+}
+
+func (s *Service) DailyUsage(ctx context.Context, deviceID string, from, to time.Time) (modelResponse.Common, error) {
+	respData, err := s.TimescaleRepo.GetMeterDailyUsage(ctx, deviceID, from, to)
+	if err != nil {
+		return modelResponse.Common{}, errors.Wrap(err, "failed repo GetMeterDailyUsage")
 	}
 
 	return modelResponse.Common{

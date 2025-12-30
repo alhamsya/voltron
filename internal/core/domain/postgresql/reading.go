@@ -20,3 +20,8 @@ type Latest struct {
 	Time   time.Time `json:"time"`
 	Value  float64   `json:"value"`
 }
+
+type DailyUsage struct {
+	Day      string  `json:"day"` // "2025-12-19"
+	UsageKwh float64 `json:"usage_kwh"`
+}

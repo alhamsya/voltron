@@ -91,6 +91,40 @@ func (h *Handler) TimeSeries(ctx *fiber.Ctx) error {
 }
 
 func (h *Handler) DailyUsage(ctx *fiber.Ctx) error {
+	deviceID := ctx.Query("device_id", "iot")
+	fromStr := ctx.Query("from", "")
+	toStr := ctx.Query("to", "")
+
+	if deviceID == "" {
+		return response.New(ctx).SetHttpCode(http.StatusBadRequest).
+			SetMessage("device_id is required").Send()
+	}
+	if fromStr == "" || toStr == "" {
+		return response.New(ctx).SetHttpCode(http.StatusBadRequest).
+			SetMessage("from and to are required (YYYY-MM-DD)").Send()
+	}
+
+	from, err := time.Parse("2006-01-02", fromStr)
+	if err != nil {
+		return response.New(ctx).SetHttpCode(http.StatusBadRequest).
+			SetMessage("invalid from format, expected YYYY-MM-DD").Send()
+	}
+	to, err := time.Parse("2006-01-02", toStr)
+	if err != nil {
+		return response.New(ctx).SetHttpCode(http.StatusBadRequest).
+			SetMessage("invalid to format, expected YYYY-MM-DD").Send()
+	}
+	if !from.Before(to) {
+		return response.New(ctx).SetHttpCode(http.StatusBadRequest).
+			SetMessage("from must be before to").Send()
+	}
+
+	resp, err := h.Interactor.MeterService.DailyUsage(ctx.Context(), deviceID, from, to)
+	if err != nil {
+		return response.New(ctx).SetHttpCode(http.StatusInternalServerError).SetErr(err).
+			SetMessage("failed to get daily usage").Send()
+	}
+
 	return response.New(ctx).SetHttpCode(http.StatusOK).
-		SetData([]map[string]any{}).SetMessage("success power latest").Send()
+		SetData(resp.Data).SetMessage("success power latest").Send()
 }
