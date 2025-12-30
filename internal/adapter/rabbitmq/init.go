@@ -77,6 +77,9 @@ func NewConsumer(ctx context.Context, cfg *Config, funcConsumer func(context.Con
 					Msg("delivery channel closed")
 				return nil
 			}
+			ctx = logging.InjectMetadata(ctx, map[string]any{
+				"message_body": string(message.Body),
+			})
 			errConsumer := funcConsumer(ctx, message)
 			if errConsumer != nil {
 				if strings.Contains(errConsumer.Error(), "failed json unmarshal") {

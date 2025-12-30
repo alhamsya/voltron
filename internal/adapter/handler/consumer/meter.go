@@ -3,7 +3,6 @@ package consumer
 import (
 	"context"
 	"encoding/json"
-
 	"github.com/pkg/errors"
 
 	modelRequest "github.com/alhamsya/voltron/internal/core/domain/request"
