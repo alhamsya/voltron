@@ -13,9 +13,14 @@
 ## ⚡️ Meter Value Simulator
 - https://v0-meter-value-simulator.vercel.app/
 
+## 👀 Architecture Backend
+![img.png](internal/resource/doc/img.png)
+
 ## 👀 Architecture
 - architecture repository: Hexagonal Architecture
 - web framework: fiber (https://gofiber.io/)
+- event queue architecture: RabbitMQ
+- database: TimescaleDB
 
 ## 🎯 Structure
 - `cmd`: directory for main entry points or commands of the application
