@@ -139,7 +139,7 @@ func (db *PostgreSQL) GetMeterDailyUsage(ctx context.Context, deviceID string, f
 			ORDER BY day ASC;
 		`
 
-	rows, err := db.Replica.Query(ctx, query, deviceID)
+	rows, err := db.Replica.Query(ctx, query, deviceID, from, to)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed Query")
 	}
