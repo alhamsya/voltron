@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/alhamsya/voltron/internal/adapter/handler/rest"
@@ -77,16 +77,8 @@ func customLogger(ctx context.Context, cfg *config.Application) fiber.Handler {
 }
 
 func customCORS(config *config.Application) fiber.Handler {
-	if config.Static.Frontend.URL == "" {
-		return cors.New()
-	}
-	origin, err := url.Parse(config.Static.Frontend.URL)
-	if err != nil {
-		panic(err)
-	}
-
 	corsConfig := cors.Config{
-		AllowOrigins:     fmt.Sprintf("%s://%s/", origin.Scheme, origin.Host),
+		AllowOrigins:     strings.TrimSpace(config.Static.Frontend.URL),
 		AllowMethods:     "OPTIONS,GET,POST,PUT,DELETE",
 		AllowHeaders:     "Content-Type, Authorization",
 		ExposeHeaders:    "Cross-Origin-Opener-Policy, Cross-Origin-Embedder-Policy",
