@@ -14,3 +14,9 @@ type TimeSeries struct {
 	Time  time.Time `json:"time"`
 	Value float64   `json:"value"`
 }
+
+type Latest struct {
+	Metric string    `json:"metric"`
+	Time   time.Time `json:"time"`
+	Value  float64   `json:"value"`
+}

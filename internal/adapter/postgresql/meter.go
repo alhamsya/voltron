@@ -96,3 +96,32 @@ func (db *PostgreSQL) GetTimeSeries(ctx context.Context, param *modelRequest.Tim
 	}
 	return powerMeters, nil
 }
+
+func (db *PostgreSQL) GetLatestMeter(ctx context.Context, deviceID string) ([]modelPostgresql.Latest, error) {
+	const query = `
+			SELECT DISTINCT ON (metric)
+			  metric,
+			  time,
+			  value
+			FROM power_meter
+			WHERE device_id = $1
+			ORDER BY metric, time DESC
+		`
+
+	rows, err := db.Replica.Query(ctx, query, deviceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var resp []modelPostgresql.Latest
+	for rows.Next() {
+		var l modelPostgresql.Latest
+		if err = rows.Scan(&l.Metric, &l.Time, &l.Value); err != nil {
+			return nil, errors.Wrap(err, "failed rows scan")
+		}
+		resp = append(resp, l)
+	}
+
+	return resp, nil
+}

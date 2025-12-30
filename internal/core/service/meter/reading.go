@@ -64,3 +64,15 @@ func (s *Service) TimeSeries(ctx context.Context, param *modelRequest.TimeSeries
 		Data:     respData,
 	}, nil
 }
+
+func (s *Service) Latest(ctx context.Context, deviceID string) (modelResponse.Common, error) {
+	respData, err := s.TimescaleRepo.GetLatestMeter(ctx, deviceID)
+	if err != nil {
+		return modelResponse.Common{}, errors.Wrap(err, "failed repo GetLatestMeter")
+	}
+
+	return modelResponse.Common{
+		HttpCode: http.StatusOK,
+		Data:     respData,
+	}, nil
+}

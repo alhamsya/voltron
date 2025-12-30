@@ -50,8 +50,21 @@ func (h *Handler) Reading(ctx *fiber.Ctx) error {
 }
 
 func (h *Handler) Latest(ctx *fiber.Ctx) error {
+	deviceID := strings.TrimSpace(ctx.Query("device_id", "iot"))
+	if deviceID == "" {
+		return response.New(ctx).SetHttpCode(http.StatusBadRequest).
+			SetMessage("device_id is required").Send()
+	}
+
+	resp, err := h.Interactor.MeterService.Latest(ctx.Context(), deviceID)
+	if err != nil {
+		return response.New(ctx).
+			SetHttpCode(fiber.StatusInternalServerError).SetErr(err).
+			SetMessage("failed to get latest metrics").Send()
+	}
+
 	return response.New(ctx).SetHttpCode(http.StatusOK).
-		SetData([]map[string]any{}).SetMessage("success power latest").Send()
+		SetData(resp.Data).SetMessage("success power latest").Send()
 }
 
 func (h *Handler) TimeSeries(ctx *fiber.Ctx) error {

@@ -10,4 +10,5 @@ import (
 type TimescaleRepo interface {
 	BulkPowerMeter(ctx context.Context, param []modelPostgresql.PowerMeter) error
 	GetTimeSeries(ctx context.Context, param *modelRequest.TimeSeries) ([]modelPostgresql.PowerMeter, error)
+	GetLatestMeter(ctx context.Context, deviceID string) ([]modelPostgresql.Latest, error)
 }
