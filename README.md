@@ -84,9 +84,13 @@ pkg/
     ```
 
 ## ⚙️ Running Tests
-1. start service in local environment
+1. start service rest in local environment
     ```bash
     go run ./cmd/main.go run rest
+    ```
+2. start service consumer in local environment
+    ```bash
+    go run ./cmd/main.go run consumer
     ```
 
 ## ⚡️ Mock Documentation
