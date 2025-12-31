@@ -9,6 +9,10 @@
 
 ## ⚡️ Dashboard
 - https://power-meter-dashboard.up.railway.app/
+- Endpoint URL Meter Value Simulator:
+```
+https://voltron.up.railway.app/v1/api/power/meter
+```
 
 ## ⚡️ Meter Value Simulator
 - https://v0-meter-value-simulator.vercel.app/
