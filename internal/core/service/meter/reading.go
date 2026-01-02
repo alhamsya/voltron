@@ -15,6 +15,7 @@ import (
 )
 
 func (s *Service) Reading(ctx context.Context, param []modelRequest.PowerMater) (modelResponse.Common, error) {
+	return modelResponse.Common{}, errors.New("some error")
 	msgByte, err := json.Marshal(param)
 	if err != nil {
 		return modelResponse.Common{HttpCode: http.StatusInternalServerError}, errors.Wrap(err, "failed json marshal")

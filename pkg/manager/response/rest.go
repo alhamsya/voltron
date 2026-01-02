@@ -1,7 +1,10 @@
 package response
 
 import (
+	"github.com/alhamsya/voltron/pkg/manager/logging"
 	"github.com/gofiber/fiber/v2"
+	"github.com/pkg/errors"
+	"strings"
 )
 
 func New(ctx *fiber.Ctx) *Response {
@@ -31,7 +34,8 @@ func (r *Response) SetHttpCode(httpCode int) *Response {
 }
 
 func (r *Response) Send(arg ...string) (resp error) {
-	//args := strings.Join(arg, "|")
+	logged := logging.FromContext(r.ctx.Context())
+	args := strings.Join(arg, ": ")
 
 	//valida http code
 	if r.httpCode <= 0 {
@@ -42,21 +46,30 @@ func (r *Response) Send(arg ...string) (resp error) {
 		r.httpCode = fiber.StatusOK
 	}
 
+	md := logging.MetadataFromContext(r.ctx.Context())
+
 	//validate message for http code
 	switch r.httpCode / 100 {
 	case fiber.StatusOK / 100:
 		r.Message = r.Message + " successfully"
 	case fiber.StatusBadRequest / 100:
-		////replace message from args
-		//if strings.TrimSpace(args) != "" {
-		//	r.Message = args
-		//}
-		//
-		//if strings.TrimSpace(args) == "" && r.error != nil {
-		//	r.Message = errors.Cause(r.error).Error()
-		//}
+		//replace message from args
+		if strings.TrimSpace(args) != "" {
+			r.Message = args
+		}
 
+		if strings.TrimSpace(args) == "" && r.Error != nil {
+			r.Message = errors.Cause(r.Error).Error()
+		}
+		logged.Warn().
+			Err(r.Error).
+			Interface("log_info", md.ToMap()).
+			Msg("warn logged")
 	case fiber.StatusInternalServerError / 100:
+		logged.Error().
+			Err(r.Error).
+			Interface("log_info", md.ToMap()).
+			Msg("error logged")
 		r.Message = "please try again"
 	}
 
