@@ -2,6 +2,7 @@ package rest
 
 import (
 	modelRequest "github.com/alhamsya/voltron/internal/core/domain/request"
+	"github.com/alhamsya/voltron/pkg/manager/logging"
 	"github.com/alhamsya/voltron/pkg/manager/response"
 	"github.com/alhamsya/voltron/pkg/util"
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +18,8 @@ func (h *Handler) Reading(ctx *fiber.Ctx) error {
 		return response.New(ctx).SetHttpCode(http.StatusBadRequest).
 			SetErr(err).SetMessage("please check request body").Send()
 	}
+
+	logging.FromContextInfo(ctx.Context()).Interface("request", req).Send()
 
 	var powerMeter []modelRequest.PowerMater
 	for _, data := range req.PowerMeter {
