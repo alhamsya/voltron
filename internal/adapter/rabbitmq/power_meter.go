@@ -2,6 +2,7 @@ package rabbitmq
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	"github.com/pkg/errors"
 
@@ -10,6 +11,7 @@ import (
 
 func (r *RabbitMQ) PushPowerMeter(ctx context.Context, msgBody []byte) error {
 	message := amqp.Publishing{
+		CorrelationId: uuid.New().String(),
 		Headers: amqp.Table{
 			"sample": "value",
 		},
