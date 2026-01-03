@@ -103,9 +103,12 @@ by default host mock: `localhost:3000`
 ## ⚡️ API Documentation
 ### Dashboard Endpoint
 **Endpoint**:
-- `GET /v1/api/power/latest`
-- `GET /v1/api/power/time-series`
-- `GET /v1/api/power/daily-usage`
+`BASE_URL=https://voltron.up.railway.app`
+
+- `GET {{BASE_URL}}/v1/api/power/latest`
+- `GET {{BASE_URL}}/v1/api/power/time-series`
+- `GET {{BASE_URL}}/v1/api/power/daily-usage`
+- `GET {{BASE_URL}}/v1/api/billing/invoice`
 
 ### Meter Value Simulator
 **Endpoint**: 
