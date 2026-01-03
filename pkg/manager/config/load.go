@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/alhamsya/voltron/pkg/util"
 	"os"
 	"strconv"
 
@@ -45,6 +46,10 @@ func GetConfigENV() *Application {
 			App: &modelConfig.App{
 				Rest: modelConfig.Rest{
 					Port: convertStringToInt(os.Getenv("PORT")),
+				},
+				PowerMeter: modelConfig.PowerMeter{
+					Rate:    util.MustParseStrToFloat(os.Getenv("APP_RATE")),
+					TaxRate: util.MustParseStrToFloat(os.Getenv("APP_TAX_RATE")),
 				},
 			},
 			ServiceSpecific: map[string]modelConfig.DBStatic{

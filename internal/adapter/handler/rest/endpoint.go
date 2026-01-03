@@ -24,9 +24,12 @@ func (h *Handler) Register() {
 
 	api := h.App.Group("/v1").Group("/api")
 	powerMeter := api.Group("power")
+	billing := api.Group("billing")
 
 	powerMeter.Post("/meter", h.Reading)
 	powerMeter.Get("/latest", h.Latest)
 	powerMeter.Get("/time-series", h.TimeSeries)
 	powerMeter.Get("/daily-usage", h.DailyUsage)
+
+	billing.Get("/invoice", h.Invoice)
 }

@@ -3,6 +3,8 @@ package postgresql
 import (
 	"context"
 	"fmt"
+	"github.com/alhamsya/voltron/internal/core/domain/constant"
+	modelPower "github.com/alhamsya/voltron/internal/core/domain/power"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -153,10 +155,50 @@ func (db *PostgreSQL) GetMeterDailyUsage(ctx context.Context, deviceID string, f
 			return nil, errors.Wrap(err, "failed rows scan")
 		}
 		out = append(out, modelPostgresql.DailyUsage{
-			Day:      day.Format("2006-01-02"),
+			Day:      day.Format(constant.DateOnly),
 			UsageKwh: usage,
 		})
 	}
 
 	return out, nil
+}
+
+func (db *PostgreSQL) GetBillingSummary(ctx context.Context, deviceID string, from, to time.Time) (float64, error) {
+	const q = `
+		SELECT COALESCE(SUM(usage_kwh), 0) AS total_kwh
+		FROM daily_usage
+		WHERE device_id = $1
+		  AND day >= $2::date
+		  AND day <  $3::date;
+		`
+	var total float64
+	err := db.Replica.QueryRow(ctx, q, deviceID, from, to).Scan(&total)
+	return total, err
+}
+
+func (db *PostgreSQL) GetDailyUsageLines(ctx context.Context, deviceID string, from, to time.Time) ([]modelPower.DailyLine, error) {
+	const q = `
+		SELECT day, usage_kwh
+		FROM daily_usage
+		WHERE device_id = $1
+		  AND day >= $2::date
+		  AND day <  $3::date
+		ORDER BY day ASC;
+		`
+	rows, err := db.Replica.Query(ctx, q, deviceID, from, to)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []modelPower.DailyLine
+	for rows.Next() {
+		var day time.Time
+		var u float64
+		if err := rows.Scan(&day, &u); err != nil {
+			return nil, err
+		}
+		out = append(out, modelPower.DailyLine{Day: day.Format(constant.DateOnly), UsageKwh: u})
+	}
+	return out, rows.Err()
 }

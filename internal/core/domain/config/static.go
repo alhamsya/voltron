@@ -15,7 +15,13 @@ type Frontend struct {
 }
 
 type App struct {
-	Rest Rest `mapstructure:"rest"`
+	Rest       Rest       `mapstructure:"rest"`
+	PowerMeter PowerMeter `mapstructure:"power-meter"`
+}
+
+type PowerMeter struct {
+	Rate    float64 `mapstructure:"rate"`
+	TaxRate float64 `mapstructure:"tax_rate"`
 }
 
 type Rest struct {

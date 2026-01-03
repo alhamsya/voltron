@@ -1,14 +1,21 @@
 package rest
 
 import (
-	modelRequest "github.com/alhamsya/voltron/internal/core/domain/request"
+	"bytes"
+	"fmt"
+	"github.com/alhamsya/voltron/internal/core/domain/constant"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/alhamsya/voltron/pkg/manager/logging"
 	"github.com/alhamsya/voltron/pkg/manager/response"
 	"github.com/alhamsya/voltron/pkg/util"
 	"github.com/gofiber/fiber/v2"
-	"net/http"
-	"strings"
-	"time"
+	"github.com/jung-kurt/gofpdf"
+
+	modelPower "github.com/alhamsya/voltron/internal/core/domain/power"
+	modelRequest "github.com/alhamsya/voltron/internal/core/domain/request"
 )
 
 func (h *Handler) Reading(ctx *fiber.Ctx) error {
@@ -107,12 +114,12 @@ func (h *Handler) DailyUsage(ctx *fiber.Ctx) error {
 			SetMessage("from and to are required (YYYY-MM-DD)").Send()
 	}
 
-	from, err := time.Parse("2006-01-02", fromStr)
+	from, err := time.Parse(constant.DateOnly, fromStr)
 	if err != nil {
 		return response.New(ctx).SetHttpCode(http.StatusBadRequest).
 			SetMessage("invalid from format, expected YYYY-MM-DD").Send()
 	}
-	to, err := time.Parse("2006-01-02", toStr)
+	to, err := time.Parse(constant.DateOnly, toStr)
 	if err != nil {
 		return response.New(ctx).SetHttpCode(http.StatusBadRequest).
 			SetMessage("invalid to format, expected YYYY-MM-DD").Send()
@@ -130,4 +137,115 @@ func (h *Handler) DailyUsage(ctx *fiber.Ctx) error {
 
 	return response.New(ctx).SetHttpCode(http.StatusOK).
 		SetData(resp.Data).SetMessage("success power latest").Send()
+}
+
+func (h *Handler) Invoice(c *fiber.Ctx) error {
+	deviceID := c.Query("device_id", "iot")
+	fromStr := c.Query("from", "")
+	toStr := c.Query("to", "")
+	if fromStr == "" || toStr == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "from and to are required (YYYY-MM-DD)")
+	}
+
+	from, err := time.Parse(constant.DateOnly, fromStr)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid from")
+	}
+	to, err := time.Parse(constant.DateOnly, toStr)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid to")
+	}
+	if !from.Before(to) {
+		return fiber.NewError(fiber.StatusBadRequest, "from must be before to")
+	}
+
+	summary, lines, err := h.Interactor.MeterService.BuildBilling(c.Context(), deviceID, from, to)
+	if err != nil {
+		return err
+	}
+
+	pdfBytes, err := BuildInvoicePDF(summary, lines)
+	if err != nil {
+		return err
+	}
+
+	filename := fmt.Sprintf("invoice-%s-%s.pdf", deviceID, from.Format("2006-01"))
+	c.Set("Content-Type", "application/pdf")
+	c.Set("Content-Disposition", fmt.Sprintf(`inline; filename="%s"`, filename))
+	c.Status(http.StatusOK)
+	return c.Send(pdfBytes)
+}
+
+func BuildInvoicePDF(summary modelPower.BillingSummary, lines []modelPower.DailyLine) ([]byte, error) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetTitle("Invoice", false)
+	pdf.AddPage()
+
+	// Header
+	pdf.SetFont("Arial", "B", 18)
+	pdf.Cell(0, 12, "Power Meter Invoice")
+	pdf.Ln(10)
+
+	pdf.SetFont("Arial", "", 11)
+	pdf.Cell(0, 6, fmt.Sprintf("Device: %s", summary.DeviceID))
+	pdf.Ln(6)
+	pdf.Cell(0, 6, fmt.Sprintf("Period: %s to %s", summary.From, summary.To))
+	pdf.Ln(10)
+
+	// Summary
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 7, "Summary")
+	pdf.Ln(8)
+
+	pdf.SetFont("Arial", "", 11)
+	pdf.Cell(0, 6, fmt.Sprintf("Total Usage: %.6f kWh", summary.TotalKwh))
+	pdf.Ln(6)
+	pdf.Cell(0, 6, fmt.Sprintf("Rate: %.2f / kWh", summary.RatePerKwh))
+	pdf.Ln(6)
+	pdf.Cell(0, 6, fmt.Sprintf("Subtotal: %.2f", summary.Subtotal))
+	pdf.Ln(6)
+	pdf.Cell(0, 6, fmt.Sprintf("Tax: %.2f", summary.Tax))
+	pdf.Ln(6)
+
+	pdf.SetFont("Arial", "B", 11)
+	pdf.Cell(0, 8, fmt.Sprintf("Total: %.2f", summary.Total))
+	pdf.Ln(12)
+
+	// ===== FULL WIDTH TABLE =====
+	pageW, _ := pdf.GetPageSize()
+	left, _, right, _ := pdf.GetMargins()
+	tableW := pageW - left - right
+
+	dayColW := tableW * 0.4
+	usageColW := tableW * 0.6
+
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(0, 4, "Daily Usage")
+	pdf.Ln(6)
+
+	pdf.SetFont("Arial", "B", 10)
+	pdf.CellFormat(dayColW, 8, "Day", "1", 0, "C", false, 0, "")
+	pdf.CellFormat(usageColW, 8, "Usage (kWh)", "1", 1, "C", false, 0, "")
+
+	pdf.SetFont("Arial", "", 10)
+	for _, l := range lines {
+		pdf.CellFormat(dayColW, 8, l.Day, "1", 0, "C", false, 0, "")
+		pdf.CellFormat(
+			usageColW,
+			8,
+			fmt.Sprintf("%.6f", l.UsageKwh),
+			"1",
+			1,
+			"R",
+			false,
+			0,
+			"",
+		)
+	}
+
+	var buf bytes.Buffer
+	if err := pdf.Output(&buf); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

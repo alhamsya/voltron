@@ -2,6 +2,7 @@ package port
 
 import (
 	"context"
+	modelPower "github.com/alhamsya/voltron/internal/core/domain/power"
 	modelRequest "github.com/alhamsya/voltron/internal/core/domain/request"
 	"time"
 
@@ -14,4 +15,6 @@ type TimescaleRepo interface {
 	GetMeterTimeSeries(ctx context.Context, param *modelRequest.TimeSeries) ([]modelPostgresql.PowerMeter, error)
 	GetMeterLatestMeter(ctx context.Context, deviceID string) ([]modelPostgresql.Latest, error)
 	GetMeterDailyUsage(ctx context.Context, deviceID string, from, to time.Time) ([]modelPostgresql.DailyUsage, error)
+	GetBillingSummary(ctx context.Context, deviceID string, from, to time.Time) (float64, error)
+	GetDailyUsageLines(ctx context.Context, deviceID string, from, to time.Time) ([]modelPower.DailyLine, error)
 }

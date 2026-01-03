@@ -2,6 +2,7 @@ package port
 
 import (
 	"context"
+	modelPower "github.com/alhamsya/voltron/internal/core/domain/power"
 	"time"
 
 	modelRequest "github.com/alhamsya/voltron/internal/core/domain/request"
@@ -15,4 +16,5 @@ type MeterService interface {
 	TimeSeries(ctx context.Context, param *modelRequest.TimeSeries) (modelResponse.Common, error)
 	Latest(ctx context.Context, deviceID string) (modelResponse.Common, error)
 	DailyUsage(ctx context.Context, deviceID string, from, to time.Time) (modelResponse.Common, error)
+	BuildBilling(ctx context.Context, deviceID string, from, to time.Time) (modelPower.BillingSummary, []modelPower.DailyLine, error)
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/alhamsya/voltron/internal/core/domain/constant"
+	modelPower "github.com/alhamsya/voltron/internal/core/domain/power"
 	"net/http"
 	"time"
 
@@ -108,4 +110,32 @@ func (s *Service) DailyUsage(ctx context.Context, deviceID string, from, to time
 		HttpCode: http.StatusOK,
 		Data:     respData,
 	}, nil
+}
+
+func (s *Service) BuildBilling(ctx context.Context, deviceID string, from, to time.Time) (modelPower.BillingSummary, []modelPower.DailyLine, error) {
+	totalKwh, err := s.TimescaleRepo.GetBillingSummary(ctx, deviceID, from, to)
+	if err != nil {
+		return modelPower.BillingSummary{}, nil, err
+	}
+
+	lines, err := s.TimescaleRepo.GetDailyUsageLines(ctx, deviceID, from, to)
+	if err != nil {
+		return modelPower.BillingSummary{}, nil, err
+	}
+
+	subtotal := totalKwh * s.Cfg.Static.App.PowerMeter.Rate
+	tax := subtotal * s.Cfg.Static.App.PowerMeter.TaxRate
+	total := subtotal + tax
+
+	sum := modelPower.BillingSummary{
+		DeviceID:   deviceID,
+		From:       from.Format(constant.DateOnly),
+		To:         to.Format(constant.DateOnly),
+		TotalKwh:   totalKwh,
+		RatePerKwh: s.Cfg.Static.App.PowerMeter.Rate,
+		Subtotal:   subtotal,
+		Tax:        tax,
+		Total:      total,
+	}
+	return sum, lines, nil
 }
