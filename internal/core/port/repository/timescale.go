@@ -9,7 +9,7 @@ import (
 	modelPostgresql "github.com/alhamsya/voltron/internal/core/domain/postgresql"
 )
 
-//go:generate mockgen -package=repomock -source=$GOFILE -destination=../../mock/repository/$GOFILE
+//go:generate mockgen -package=repomock -source=$GOFILE -destination=../../../mock/repository/$GOFILE
 type TimescaleRepo interface {
 	BulkPowerMeter(ctx context.Context, param []modelPostgresql.PowerMeter) error
 	GetMeterTimeSeries(ctx context.Context, param *modelRequest.TimeSeries) ([]modelPostgresql.PowerMeter, error)

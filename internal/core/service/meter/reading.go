@@ -4,14 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/alhamsya/voltron/internal/core/domain/constant"
-	modelPower "github.com/alhamsya/voltron/internal/core/domain/power"
 	"net/http"
 	"time"
 
+	"github.com/alhamsya/voltron/internal/core/domain/constant"
 	"github.com/pkg/errors"
 
 	modelPostgresql "github.com/alhamsya/voltron/internal/core/domain/postgresql"
+	modelPower "github.com/alhamsya/voltron/internal/core/domain/power"
 	modelRequest "github.com/alhamsya/voltron/internal/core/domain/request"
 	modelResponse "github.com/alhamsya/voltron/internal/core/domain/response"
 )
@@ -39,7 +39,7 @@ func (s *Service) LogPowerMeter(ctx context.Context, param []modelRequest.PowerM
 	for _, data := range param {
 		pmReading := modelPostgresql.PowerMeter{
 			Time:      data.Date,
-			DeviceID:  "iot",
+			DeviceID:  constant.DeviceIoT,
 			Metric:    data.Name,
 			Value:     data.Data,
 			EventHash: fmt.Sprintf("iot-%s-%d", data.Name, time.Now().Unix()),
@@ -112,21 +112,30 @@ func (s *Service) DailyUsage(ctx context.Context, deviceID string, from, to time
 	}, nil
 }
 
+// BuildBilling builds a billing summary for a device within a given time range.
+// It calculates total energy usage (kWh), applies the configured rate and tax,
+// and returns both the billing summary and daily usage line details.
 func (s *Service) BuildBilling(ctx context.Context, deviceID string, from, to time.Time) (modelPower.BillingSummary, []modelPower.DailyLine, error) {
+	// Retrieve total energy consumption (kWh) for the given device and period
 	totalKwh, err := s.TimescaleRepo.GetBillingSummary(ctx, deviceID, from, to)
 	if err != nil {
-		return modelPower.BillingSummary{}, nil, err
+		return modelPower.BillingSummary{}, nil, errors.Wrap(err, "failed repo GetBillingSummary")
 	}
 
+	// Retrieve daily usage breakdown used for billing detail lines
 	lines, err := s.TimescaleRepo.GetDailyUsageLines(ctx, deviceID, from, to)
 	if err != nil {
-		return modelPower.BillingSummary{}, nil, err
+		return modelPower.BillingSummary{}, nil, errors.Wrap(err, "failed repo GetDailyUsageLines")
 	}
 
+	// Calculate subtotal based on total kWh and configured rate
 	subtotal := totalKwh * s.Cfg.Static.App.PowerMeter.Rate
+	// Calculate tax from subtotal using configured tax rate
 	tax := subtotal * s.Cfg.Static.App.PowerMeter.TaxRate
+	// Calculate final total including tax
 	total := subtotal + tax
 
+	// Build billing summary response object
 	sum := modelPower.BillingSummary{
 		DeviceID:   deviceID,
 		From:       from.Format(constant.DateOnly),

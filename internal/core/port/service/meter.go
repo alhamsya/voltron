@@ -9,7 +9,7 @@ import (
 	modelResponse "github.com/alhamsya/voltron/internal/core/domain/response"
 )
 
-//go:generate mockgen -package=usecasemock -source=$GOFILE -destination=../../mock/usecase/$GOFILE
+//go:generate mockgen -package=usecasemock -source=$GOFILE -destination=../../../mock/usecase/$GOFILE
 type MeterService interface {
 	Reading(ctx context.Context, param []modelRequest.PowerMater) (modelResponse.Common, error)
 	LogPowerMeter(ctx context.Context, param []modelRequest.PowerMater) error

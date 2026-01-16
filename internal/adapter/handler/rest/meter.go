@@ -3,11 +3,11 @@ package rest
 import (
 	"bytes"
 	"fmt"
-	"github.com/alhamsya/voltron/internal/core/domain/constant"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/alhamsya/voltron/internal/core/domain/constant"
 	"github.com/alhamsya/voltron/pkg/manager/logging"
 	"github.com/alhamsya/voltron/pkg/manager/response"
 	"github.com/alhamsya/voltron/pkg/util"
@@ -60,7 +60,7 @@ func (h *Handler) Reading(ctx *fiber.Ctx) error {
 }
 
 func (h *Handler) Latest(ctx *fiber.Ctx) error {
-	deviceID := strings.TrimSpace(ctx.Query("device_id", "iot"))
+	deviceID := strings.TrimSpace(ctx.Query("device_id", constant.DeviceIoT))
 	if deviceID == "" {
 		return response.New(ctx).SetHttpCode(http.StatusBadRequest).
 			SetMessage("device_id is required").Send()
@@ -101,7 +101,7 @@ func (h *Handler) TimeSeries(ctx *fiber.Ctx) error {
 }
 
 func (h *Handler) DailyUsage(ctx *fiber.Ctx) error {
-	deviceID := ctx.Query("device_id", "iot")
+	deviceID := ctx.Query("device_id", constant.DeviceIoT)
 	fromStr := ctx.Query("from", "")
 	toStr := ctx.Query("to", "")
 
@@ -140,7 +140,7 @@ func (h *Handler) DailyUsage(ctx *fiber.Ctx) error {
 }
 
 func (h *Handler) Invoice(c *fiber.Ctx) error {
-	deviceID := c.Query("device_id", "iot")
+	deviceID := c.Query("device_id", constant.DeviceIoT)
 	fromStr := c.Query("from", "")
 	toStr := c.Query("to", "")
 	if fromStr == "" || toStr == "" {
@@ -177,27 +177,27 @@ func (h *Handler) Invoice(c *fiber.Ctx) error {
 }
 
 func BuildInvoicePDF(summary modelPower.BillingSummary, lines []modelPower.DailyLine) ([]byte, error) {
-	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf := gofpdf.New("P", "mm", gofpdf.PageSizeA4, "")
 	pdf.SetTitle("Invoice", false)
 	pdf.AddPage()
 
 	// Header
-	pdf.SetFont("Arial", "B", 18)
+	pdf.SetFont(constant.PDFFamilyStr, gofpdf.AlignBaseline, 18)
 	pdf.Cell(0, 12, "Power Meter Invoice")
 	pdf.Ln(10)
 
-	pdf.SetFont("Arial", "", 11)
+	pdf.SetFont(constant.PDFFamilyStr, "", 11)
 	pdf.Cell(0, 6, fmt.Sprintf("Device: %s", summary.DeviceID))
 	pdf.Ln(6)
 	pdf.Cell(0, 6, fmt.Sprintf("Period: %s to %s", summary.From, summary.To))
 	pdf.Ln(10)
 
 	// Summary
-	pdf.SetFont("Arial", "B", 12)
+	pdf.SetFont(constant.PDFFamilyStr, gofpdf.AlignBaseline, 12)
 	pdf.Cell(0, 7, "Summary")
 	pdf.Ln(8)
 
-	pdf.SetFont("Arial", "", 11)
+	pdf.SetFont(constant.PDFFamilyStr, "", 11)
 	pdf.Cell(0, 6, fmt.Sprintf("Total Usage: %.6f kWh", summary.TotalKwh))
 	pdf.Ln(6)
 	pdf.Cell(0, 6, fmt.Sprintf("Rate: %.2f / kWh", summary.RatePerKwh))
@@ -207,7 +207,7 @@ func BuildInvoicePDF(summary modelPower.BillingSummary, lines []modelPower.Daily
 	pdf.Cell(0, 6, fmt.Sprintf("Tax: %.2f", summary.Tax))
 	pdf.Ln(6)
 
-	pdf.SetFont("Arial", "B", 11)
+	pdf.SetFont(constant.PDFFamilyStr, gofpdf.AlignBaseline, 11)
 	pdf.Cell(0, 8, fmt.Sprintf("Total: %.2f", summary.Total))
 	pdf.Ln(12)
 
@@ -219,15 +219,15 @@ func BuildInvoicePDF(summary modelPower.BillingSummary, lines []modelPower.Daily
 	dayColW := tableW * 0.4
 	usageColW := tableW * 0.6
 
-	pdf.SetFont("Arial", "B", 12)
+	pdf.SetFont(constant.PDFFamilyStr, gofpdf.AlignBaseline, 12)
 	pdf.Cell(0, 4, "Daily Usage")
 	pdf.Ln(6)
 
-	pdf.SetFont("Arial", "B", 10)
+	pdf.SetFont(constant.PDFFamilyStr, gofpdf.AlignBaseline, 10)
 	pdf.CellFormat(dayColW, 8, "Day", "1", 0, "C", false, 0, "")
 	pdf.CellFormat(usageColW, 8, "Usage (kWh)", "1", 1, "C", false, 0, "")
 
-	pdf.SetFont("Arial", "", 10)
+	pdf.SetFont(constant.PDFFamilyStr, "", 10)
 	for _, l := range lines {
 		pdf.CellFormat(dayColW, 8, l.Day, "1", 0, "C", false, 0, "")
 		pdf.CellFormat(
