@@ -69,9 +69,10 @@ func Connect(ctx context.Context, cfg *Config) *pgxpool.Pool {
 }
 
 func (db *PostgreSQL) Ping(ctx context.Context) error {
-	return db.Ping(ctx)
+	return db.Primary.Ping(ctx)
 }
 
 func (db *PostgreSQL) Close() {
-	db.Close()
+	db.Primary.Close()
+	db.Replica.Close()
 }
